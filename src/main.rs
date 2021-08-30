@@ -109,7 +109,7 @@ impl<'a> Component for Model {
                     {answer}
                 </div>
                 <form onsubmit=form_submit_handler>
-                    <span style="font-size:4em">{self.current_hiragana.jpn}</span>
+                    <span id="queryhiragana">{self.current_hiragana.jpn}</span>
                     <input type="text" ref=self.answer_ref.clone() value={self.answer_text.clone()} oninput=self.link.callback(|e: InputData| Msg::UpdateAnswer(e.value))/>
                     <input type="submit" onclick=self.link.callback(|_|Msg::Answer)/>
                 </form>
