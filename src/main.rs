@@ -1,4 +1,7 @@
-use hiragana::{Hiragana, picker::{pick_hiragana, pick_hiragana_exclude_existing}};
+use hiragana::{
+    picker::{pick_hiragana, pick_hiragana_exclude_existing},
+    Hiragana,
+};
 use rand::{prelude::ThreadRng, seq::IteratorRandom, thread_rng};
 use web_sys::{FocusEvent, Url};
 use yew::{html, Component, InputData, Properties};
@@ -57,7 +60,11 @@ impl<'a> Component for Model {
                     hiragana: self.current_hiragana,
                     answer: prev_answer,
                 });
-                self.current_hiragana = pick_hiragana_exclude_existing(&self.hiragana, &mut self.rng, self.current_hiragana);
+                self.current_hiragana = pick_hiragana_exclude_existing(
+                    &self.hiragana,
+                    &mut self.rng,
+                    self.current_hiragana,
+                );
                 true
             }
         }
@@ -80,8 +87,14 @@ impl<'a> Component for Model {
             .previous_answer
             .as_ref()
             .map(|previous_answer| {
+                let result = if previous_answer.answer == previous_answer.hiragana.eng {
+                    "✅"
+                } else {
+                    "❌"
+                };
                 format!(
-                    "{}: {} (correct answer: {})",
+                    "{} {}: {} (correct answer: {})",
+                    result,
                     previous_answer.hiragana.jpn,
                     previous_answer.answer,
                     previous_answer.hiragana.eng
