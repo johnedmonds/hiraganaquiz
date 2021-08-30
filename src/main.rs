@@ -1,5 +1,5 @@
-use hiragana::Hiragana;
-use rand::{prelude::ThreadRng, seq::IteratorRandom, thread_rng, Rng};
+use hiragana::{Hiragana, picker::{pick_hiragana, pick_hiragana_exclude_existing}};
+use rand::{prelude::ThreadRng, seq::IteratorRandom, thread_rng};
 use web_sys::{FocusEvent, Url};
 use yew::{html, Component, InputData, Properties};
 
@@ -22,13 +22,6 @@ struct Model {
     rng: ThreadRng,
     link: yew::ComponentLink<Self>,
     answer_text: String,
-}
-
-fn pick_hiragana(
-    hiragana: &Vec<&'static Hiragana<'static>>,
-    rng: &mut ThreadRng,
-) -> &'static Hiragana<'static> {
-    hiragana[rng.gen_range(0..hiragana.len())]
 }
 
 #[derive(Properties, Clone)]
@@ -64,7 +57,7 @@ impl<'a> Component for Model {
                     hiragana: self.current_hiragana,
                     answer: prev_answer,
                 });
-                self.current_hiragana = pick_hiragana(&self.hiragana, &mut self.rng);
+                self.current_hiragana = pick_hiragana_exclude_existing(&self.hiragana, &mut self.rng, self.current_hiragana);
                 true
             }
         }
@@ -121,7 +114,7 @@ fn main() {
                 .expect("Count param should be a positive number")
         })
         .unwrap_or(5);
-    let single_char_hiragana = hiragana::SYMBOLS
+    let single_char_hiragana = hiragana::data::SYMBOLS
         .iter()
         .filter(|h| h.jpn.chars().count() < 2);
     let mut rng = thread_rng();

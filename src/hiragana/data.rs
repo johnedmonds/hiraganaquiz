@@ -1,8 +1,4 @@
-#[derive(Debug)]
-pub struct Hiragana<'a> {
-    pub jpn: &'a str,
-    pub eng: &'a str,
-}
+use super::Hiragana;
 
 pub const SYMBOLS: &'static [Hiragana] = &[
     Hiragana {
