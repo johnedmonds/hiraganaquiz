@@ -3,8 +3,8 @@ use hiragana::{
     Hiragana,
 };
 use rand::{prelude::ThreadRng, seq::IteratorRandom, thread_rng};
-use web_sys::{FocusEvent, Url};
-use yew::{html, Component, InputData, Properties};
+use web_sys::{FocusEvent, HtmlInputElement, Url};
+use yew::{html, Component, InputData, NodeRef, Properties};
 
 mod hiragana;
 
@@ -25,6 +25,7 @@ struct Model {
     rng: ThreadRng,
     link: yew::ComponentLink<Self>,
     answer_text: String,
+    answer_ref: NodeRef,
 }
 
 #[derive(Properties, Clone)]
@@ -45,6 +46,7 @@ impl<'a> Component for Model {
             rng: props.rng,
             link,
             answer_text: "".to_string(),
+            answer_ref: NodeRef::default(),
         }
     }
 
@@ -108,10 +110,18 @@ impl<'a> Component for Model {
                 </div>
                 <form onsubmit=form_submit_handler>
                     {self.current_hiragana.jpn}
-                    <input type="text" value={self.answer_text.clone()} oninput=self.link.callback(|e: InputData| Msg::UpdateAnswer(e.value))/>
+                    <input type="text" ref=self.answer_ref.clone() value={self.answer_text.clone()} oninput=self.link.callback(|e: InputData| Msg::UpdateAnswer(e.value))/>
                     <input type="submit" onclick=self.link.callback(|_|Msg::Answer)/>
                 </form>
             </div>
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            if let Some(input) = self.answer_ref.cast::<HtmlInputElement>() {
+                input.focus().unwrap();
+            }
         }
     }
 }
