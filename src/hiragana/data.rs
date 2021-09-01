@@ -1,10 +1,16 @@
 use super::Hiragana;
 
+pub const A: Hiragana<'static> = Hiragana {
+    jpn: "あ",
+    eng: "a",
+};
+pub const SHI: Hiragana<'static> = Hiragana {
+    jpn: "し",
+    eng: "shi",
+};
 pub const SYMBOLS: &'static [Hiragana] = &[
-    Hiragana {
-        jpn: "あ",
-        eng: "a",
-    },
+    A,
+    SHI,
     Hiragana {
         jpn: "い",
         eng: "i",
@@ -56,10 +62,6 @@ pub const SYMBOLS: &'static [Hiragana] = &[
     Hiragana {
         jpn: "さ",
         eng: "sa",
-    },
-    Hiragana {
-        jpn: "し",
-        eng: "shi",
     },
     Hiragana {
         jpn: "す",

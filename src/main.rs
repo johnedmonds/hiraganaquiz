@@ -1,31 +1,17 @@
-use hiragana::{
-    picker::{pick_hiragana, pick_hiragana_exclude_existing},
-    Hiragana,
-};
+use hiragana::Hiragana;
+use quiz::Quiz;
 use rand::{prelude::ThreadRng, seq::IteratorRandom, thread_rng};
-use web_sys::{FocusEvent, HtmlInputElement, Url};
-use yew::{html, Component, InputData, NodeRef, Properties};
+use web_sys::Url;
+use yew::{html, Component, Properties};
 
+use crate::romanji::Romanji;
 mod hiragana;
-
-struct Answer {
-    hiragana: &'static Hiragana<'static>,
-    answer: String,
-}
-
-enum Msg {
-    UpdateAnswer(String),
-    Answer,
-}
+mod quiz;
+mod romanji;
 
 struct Model {
-    previous_answer: Option<Answer>,
-    current_hiragana: &'static Hiragana<'static>,
-    hiragana: Vec<&'static Hiragana<'static>>,
-    rng: ThreadRng,
     link: yew::ComponentLink<Self>,
-    answer_text: String,
-    answer_ref: NodeRef,
+    props: Props,
 }
 
 #[derive(Properties, Clone)]
@@ -34,94 +20,29 @@ struct Props {
     rng: ThreadRng,
 }
 
-impl<'a> Component for Model {
-    type Message = Msg;
+impl Component for Model {
+    type Message = ();
+
     type Properties = Props;
 
-    fn create(mut props: Self::Properties, link: yew::ComponentLink<Self>) -> Self {
-        Self {
-            current_hiragana: pick_hiragana(&props.hiragana, &mut props.rng),
-            hiragana: props.hiragana,
-            previous_answer: None,
-            rng: props.rng,
-            link,
-            answer_text: "".to_string(),
-            answer_ref: NodeRef::default(),
-        }
+    fn create(props: Self::Properties, link: yew::ComponentLink<Self>) -> Self {
+        Self { link, props }
     }
 
-    fn update(&mut self, msg: Self::Message) -> yew::ShouldRender {
-        match msg {
-            Msg::UpdateAnswer(answer) => {
-                self.answer_text = answer;
-                false
-            }
-            Msg::Answer => {
-                let prev_answer = std::mem::replace(&mut self.answer_text, "".to_string());
-                self.previous_answer = Some(Answer {
-                    hiragana: self.current_hiragana,
-                    answer: prev_answer,
-                });
-                self.current_hiragana = pick_hiragana_exclude_existing(
-                    &self.hiragana,
-                    &mut self.rng,
-                    self.current_hiragana,
-                );
-                true
-            }
-        }
+    fn update(&mut self, _msg: Self::Message) -> yew::ShouldRender {
+        todo!()
     }
 
-    fn change(&mut self, props: Self::Properties) -> yew::ShouldRender {
-        self.hiragana = props.hiragana;
-        self.current_hiragana = pick_hiragana(&self.hiragana, &mut self.rng);
-        self.answer_text = "".to_string();
-        true
+    fn change(&mut self, _props: Self::Properties) -> yew::ShouldRender {
+        todo!()
     }
 
     fn view(&self) -> yew::Html {
-        let form_submit_handler = self.link.batch_callback(|e: FocusEvent| {
-            e.stop_propagation();
-            e.prevent_default();
-            None
-        });
-        let answer = self
-            .previous_answer
-            .as_ref()
-            .map(|previous_answer| {
-                let result = if previous_answer.answer == previous_answer.hiragana.eng {
-                    "✅"
-                } else {
-                    "❌"
-                };
-                format!(
-                    "{} {}: {} (correct answer: {})",
-                    result,
-                    previous_answer.hiragana.jpn,
-                    previous_answer.answer,
-                    previous_answer.hiragana.eng
-                )
-            })
-            .unwrap_or("".to_string());
         html! {
-            <div>
-                <div>
-                    {answer}
-                </div>
-                <form onsubmit=form_submit_handler>
-                    <span id="queryhiragana">{self.current_hiragana.jpn}</span>
-                    <input type="text" ref=self.answer_ref.clone() value={self.answer_text.clone()} oninput=self.link.callback(|e: InputData| Msg::UpdateAnswer(e.value))/>
-                    <input type="submit" onclick=self.link.callback(|_|Msg::Answer)/>
-                </form>
-            </div>
-        }
-    }
-
-    fn rendered(&mut self, first_render: bool) {
-        if first_render {
-            if let Some(input) = self.answer_ref.cast::<HtmlInputElement>() {
-                input.focus().unwrap();
-            }
+            <>
+                <Quiz hiragana=self.props.hiragana.clone() rng=self.props.rng.clone()/>
+                <Romanji/>
+            </>
         }
     }
 }

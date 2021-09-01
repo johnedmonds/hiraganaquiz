@@ -10,3 +10,7 @@ rand = "0.8"
 getrandom = {version = "0.2", features = ["js"]}
 yew = "0.18"
 web-sys = {version = "0.3", features = ["UrlSearchParams"]}
+lazy_static = "1.4"
+nom = "7.0"
+patricia_tree = "0.3"
+itertools = "0.10"
